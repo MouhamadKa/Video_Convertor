@@ -1,0 +1,18 @@
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore environment directories
+env/
+venv/
+
+# Ignore log files
+*.log
+
+# Ignore database files
+*.sqlite3
+
+# Ignore other files and directories
+node_modules/
+dist/
+media/
