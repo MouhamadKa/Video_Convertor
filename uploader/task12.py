@@ -1,3 +1,5 @@
+# It put the generated files in the right place. but it doesn't remove the original files
+
 from django.conf import settings
 import subprocess
 import os
@@ -38,9 +40,6 @@ def convert_video(video_id):
 
         if result.returncode != 0:
             raise subprocess.CalledProcessError(result.returncode, command, output=result.stdout, stderr=result.stderr)
-
-        print(input_path)
-        os.remove(input_path)  # Delete the original file
 
         # Update video model with new file path if needed
         relative_output_path = os.path.relpath(output_mpd_path, settings.MEDIA_ROOT)

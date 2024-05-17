@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <head>
-<h1>Welcome to Crystal Videos</h1><br><br>
-<a href = "/uploader/upload"><b>Click here to upload a new video</b></a> <br><br>
+    <h1>Welcome to Video Streamer</h1><br><br>
+    <a href = "/uploader/upload"><b>Click here to upload a new video</b></a> <br><br>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=200, initial-scale=0.30">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<title>video player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=200, initial-scale=0.30">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <title>video player</title>
 </head>
 
 <body>
-{% for video in videos %}
-<video src="http://localhost:3000/{{video.video_file}}" controls></video> <br><br>
-{% endfor %}
+    {% for video in videos %}
+    <video data-dashjs-player autoplay controls>
+        <source src="http://localhost:3000/{{video.video_file}}" type="video/mp4">
+        <source src="http://localhost:3000/{{video.video_file}}"  type="application/dash+xml">
+    </video> <br><br>
+    {% endfor %}
+    <script>
+        var player = dashjs.MediaPlayer().create();
+        player.initialize(document.getElementById('videoPlayer'), 'video.mpd', false);
+    </script>
 </body>
 </html>

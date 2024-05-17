@@ -3,7 +3,7 @@ from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import MyChunkedUpload, Videos
-from .task1 import convert_video
+from .tasks import convert_video
 
 
 class ChunkedUploadDemo(TemplateView):
@@ -34,10 +34,18 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
         vid.save()
 
         # Trigger the Celery task to convert the video
-        convert_video.delay(vid.id)
+        convert_video(vid.id)
         
-    def get_response_data(self, chunked_upload, request):
-        return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
-                            (chunked_upload.filename, chunked_upload.offset))}  
+    # def get_response_data(self, chunked_upload, request):
+    #     return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
+    #                         (chunked_upload.filename, chunked_upload.offset))}  
+        
+        
+def nnn(request):
+    video_id = 117
+    print(f"Dispatching task for video ID {video_id}")
+    convert_video(video_id)
+    
+    return HttpResponse("Great")
                             
                               
