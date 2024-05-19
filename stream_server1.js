@@ -1,15 +1,12 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const http=require('http');
+const fs=require("fs");
+const path=require("path");
+
 
 const server = http.createServer((req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "*"); 
     if (req.method === 'GET') {
-        const urlParts = req.url.split('/');
-        const resolution = urlParts[1];  // Extract resolution part from the URL
-        const videoFile = urlParts.slice(2).join('/');  // Extract actual video file path
-        const filepath = path.resolve(`./media/${resolution}/${videoFile}`);
-        
+        const filepath = path.resolve('./media/' + req.url);
         fs.stat(filepath, (err, stat) => {
             if (err) {
                 res.writeHead(404);
@@ -18,6 +15,7 @@ const server = http.createServer((req, res) => {
 
             const fileSize = stat.size;
             const range = req.headers.range;
+
             const contentType = path.extname(filepath) === '.mpd' ? 'application/dash+xml' : 'video/mp4';
 
             if (range) {
@@ -30,14 +28,14 @@ const server = http.createServer((req, res) => {
                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                     'Accept-Ranges': 'bytes',
                     'Content-Length': chunksize,
-                    'Content-Type': contentType,
+                    'Content-Type': contentType,  // Use dynamic content type based on file extension
                 };
                 res.writeHead(206, head);
                 file.pipe(res);
             } else {
                 const head = {
                     'Content-Length': fileSize,
-                    'Content-Type': contentType,
+                    'Content-Type': contentType,  // Use dynamic content type based on file extension
                 };
                 res.writeHead(200, head);
                 fs.createReadStream(filepath).pipe(res);

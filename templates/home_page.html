@@ -1,25 +1,70 @@
 <!DOCTYPE html>
 <head>
-    <h1>Welcome to Video Streamer</h1><br><br>
-    <a href = "/uploader/upload"><b>Click here to upload a new video</b></a> <br><br>
+    <!--<h1>Welcome to Video Streamer</h1><br><br>-->
+    <!--<a href="/uploader/upload"><b>Click here to upload a new video</b></a><br><br>-->
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=200, initial-scale=0.30">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <link rel="stylesheet" href="../static/css/home.css">
     <title>video player</title>
 </head>
-
 <body>
-    {% for video in videos %}
-    <video data-dashjs-player autoplay controls>
-        <source src="http://localhost:3000/{{video.video_file}}" type="video/mp4">
-        <source src="http://localhost:3000/{{video.video_file}}"  type="application/dash+xml">
-    </video> <br><br>
-    {% endfor %}
+    <header>
+        <h1>Welcome to Video Streamer</h1>
+        <a href="/uploader/upload" class="upload-button"><b>Click here to upload a new video</b></a>
+    </header>
+    <main class="video-grid">
+        {% for video in videos %}
+        <div class="video-container">
+            <video id="videoPlayer{{ video.id }}" class="responsive-video" controls>
+                <source id="sourceMp4{{ video.id }}" src="http://localhost:3000/{{ video.video_file }}" type="video/mp4">
+                <source id="sourceDash{{ video.id }}" src="http://localhost:3000/{{ video.video_file }}" type="application/dash+xml">
+            </video>
+        </div>
+        {% endfor %}
+    </main>
     <script>
-        var player = dashjs.MediaPlayer().create();
-        player.initialize(document.getElementById('videoPlayer'), 'video.mpd', false);
+        function getResolution() {
+            const width = window.innerWidth;
+            if (width < 768) {
+                return 'mobile';
+            } else if (width < 1024) {
+                return 'tablet';
+            } else {
+                return 'desktop';
+            }
+        }
+
+        const resolution = getResolution();
+
+        document.querySelectorAll('video').forEach((videoElement, index) => {
+            const player = dashjs.MediaPlayer().create();
+            const videoId = index + 1; // Assuming video IDs are sequential starting from 1
+            const sourceMp4 = document.getElementById(`sourceMp4${videoId}`);
+            const sourceDash = document.getElementById(`sourceDash${videoId}`);
+            
+            const baseMp4 = sourceMp4.src.split('.mp4')[0];
+            const baseDash = sourceDash.src.split('.mpd')[0];
+
+            switch (resolution) {
+                case 'mobile':
+                    sourceMp4.src = `${baseMp4}_mobile.mp4`;
+                    sourceDash.src = `${baseDash}_mobile.mpd`;
+                    break;
+                case 'tablet':
+                    sourceMp4.src = `${baseMp4}_tablet.mp4`;
+                    sourceDash.src = `${baseDash}_tablet.mpd`;
+                    break;
+                case 'desktop':
+                    sourceMp4.src = `${baseMp4}_desktop.mp4`;
+                    sourceDash.src = `${baseDash}_desktop.mpd`;
+                    break;
+            }
+
+            player.initialize(videoElement, sourceDash.src, false);
+        });
     </script>
 </body>
 </html>
