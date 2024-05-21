@@ -1,7 +1,5 @@
 django
-
-nodejs
-
-ffmpeg
-
 redis
+celery[redis]
+
+# Also You Have to Install NodeJS and FFmpeg
