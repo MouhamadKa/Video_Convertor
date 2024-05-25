@@ -1,27 +1,27 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <!--<h1>Welcome to Video Streamer</h1><br><br>-->
-    <!--<a href="/uploader/upload"><b>Click here to upload a new video</b></a><br><br>-->
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <link rel="stylesheet" href="../static/css/home.css">
-    <title>video player</title>
+    <title>Video Player</title>
 </head>
 <body>
     <header>
         <h1>Welcome to Video Streamer</h1>
         <a href="/uploader/upload" class="upload-button"><b>Click here to upload a new video</b></a>
     </header>
-    <main class="video-grid">
+    <main class="video-grid" style="max-width: 100% !important;">
         {% for video in videos %}
-        <div class="video-container">
-            <video id="videoPlayer{{ video.id }}" class="responsive-video" controls>
-                <source id="sourceMp4{{ video.id }}" src="http://localhost:3000/{{ video.video_file }}" type="video/mp4">
-                <source id="sourceDash{{ video.id }}" src="http://localhost:3000/{{ video.video_file }}" type="application/dash+xml">
+        <div class="video-container" style="max-width: 300px;">
+            <video id="videoPlayer{{ video.id }}" class="responsive-video" controls >
+                <source id="sourceDash{{ video.id }}" src="{{ video.video_file.url }}" type="application/dash+xml">
             </video>
+            <div class="download-links">
+                <a href="{{video.video_file.url }}" download>Download</a>
+            </div>
         </div>
         {% endfor %}
     </main>
@@ -39,30 +39,25 @@
 
         const resolution = getResolution();
 
-        document.querySelectorAll('video').forEach((videoElement, index) => {
+        document.querySelectorAll('video').forEach((videoElement) => {
             const player = dashjs.MediaPlayer().create();
-            const videoId = index + 1; // Assuming video IDs are sequential starting from 1
-            const sourceMp4 = document.getElementById(`sourceMp4${videoId}`);
-            const sourceDash = document.getElementById(`sourceDash${videoId}`);
-            
-            const baseMp4 = sourceMp4.src.split('.mp4')[0];
-            const baseDash = sourceDash.src.split('.mpd')[0];
+            const sourceDash = videoElement.querySelector('source');
 
-            switch (resolution) {
-                case 'mobile':
-                    sourceMp4.src = `${baseMp4}_mobile.mp4`;
-                    sourceDash.src = `${baseDash}_mobile.mpd`;
-                    break;
-                case 'tablet':
-                    sourceMp4.src = `${baseMp4}_tablet.mp4`;
-                    sourceDash.src = `${baseDash}_tablet.mpd`;
-                    break;
-                case 'desktop':
-                    sourceMp4.src = `${baseMp4}_desktop.mp4`;
-                    sourceDash.src = `${baseDash}_desktop.mpd`;
-                    break;
-            }
+            // Extract the original video name from the URL without the extension
+            const originalVideoName = sourceDash.src.split('/').slice(-1)[0].split('.')[0];
 
+            // Construct the new path based on the resolution
+            const newSourcePath = `/media/post_videos/${originalVideoName}/${resolution}/${resolution}.mpd`;
+
+            // Set the new source path
+            sourceDash.src = newSourcePath;
+
+            // Clear existing source to avoid caching issues
+            videoElement.pause();
+            videoElement.removeAttribute('src');
+            videoElement.load();
+
+            // Initialize the player with the new source
             player.initialize(videoElement, sourceDash.src, false);
         });
     </script>

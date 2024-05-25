@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'uploader.middleware.DeviceDetectionMiddleware',
 ]
 
 ROOT_URLCONF = 'crystal_video.urls'
